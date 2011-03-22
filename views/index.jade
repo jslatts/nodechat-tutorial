@@ -1,0 +1,33 @@
+!!! 5
+html(lang="en")
+  head
+    title nodechat
+    script(type="text/javascript", src="/lib/jquery-1.5.1.js")
+    script(type="text/javascript", src="/lib/underscore.js")
+    script(type="text/javascript", src="/lib/backbone.js")
+    script(type="text/javascript", src="http://cdn.socket.io/stable/socket.io.js")
+    script(type="text/javascript", src="/models/models.js")
+    script(type="text/javascript", src="/controllers/controllers.js")
+    script(type="text/javascript", src="/views/views.js")
+      body
+    #heading
+      h1 nodechat
+    #content
+      p 
+        | connected clients
+        span#client_count 0
+      p
+        | Fun Chat Messages
+        ul#chat_list
+
+      form(method="post", action="#", onsubmit="return false")#messageForm
+        p
+          label Name:
+            input(type='text', name='user_name')
+        p
+          label Message:
+            input(type='text', name='message')
+            input(type='submit', value='send')
+
+    #footer
+
