@@ -9,21 +9,42 @@ html(lang="en")
     script(type="text/javascript", src="/models/models.js")
     script(type="text/javascript", src="/controllers/controllers.js")
     script(type="text/javascript", src="/views/views.js")
-      body
+    script
+      //Fake out FF and IE8
+      function log() {
+          if (typeof console == 'undefined') {
+              return;
+          }
+          console.log.apply(console, arguments);
+      }
+
+      $(document).ready(function () { 
+        window.app = NodeChatController.init({hashPass: !{locals.hashPass}, userName: '!{locals.name}'}); 
+      });
+  body
     #heading
       h1 nodechat
     #content
       p 
         | connected clients
         span#client_count 0
+      p 
+        a(href='/logout') logout
+
+      p
+        label You are logged in as: 
+          = locals.name 
+        br
+        label Your password hash is: 
+          = locals.hashPass
+        br
+        | don't you feel secure? :)
+
       p
         | Fun Chat Messages
         ul#chat_list
-
+          
       form(method="post", action="#", onsubmit="return false")#messageForm
-        p
-          label Name:
-            input(type='text', name='user_name')
         p
           label Message:
             input(type='text', name='message')

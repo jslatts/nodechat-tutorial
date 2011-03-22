@@ -30,6 +30,7 @@ var ClientCountView = Backbone.View.extend({
 
 var NodeChatView = Backbone.View.extend({
     initialize: function(options) {
+        _.bindAll(this, 'sendMessage');
         this.model.chats.bind('add', this.addChat);
         this.socket = options.socket;
         this.clientCountView = new ClientCountView({model: new models.ClientCountModel(), el: $('#client_count')});
@@ -62,8 +63,7 @@ var NodeChatView = Backbone.View.extend({
 
     , sendMessage: function(){
         var inputField = $('input[name=message]');
-        var nameField = $('input[name=user_name]');
-        var chatEntry = new models.ChatEntry({name: nameField.val(), text: inputField.val()});
+        var chatEntry = new models.ChatEntry({name: this.model.get('userName'), text: inputField.val()});
         this.socket.send(chatEntry.xport());
         inputField.val('');
     }

@@ -2,11 +2,13 @@
 //Controllers
 //
 var NodeChatController = {
-    init: function() {
+    init: function(options) {
         this.socket = new io.Socket(null, {port: 8000});
         var mysocket = this.socket;
+        this.userName = options.userName;
+        this.hashPass = options.hashPass;
 
-        this.model = new models.NodeChatModel();
+        this.model = new models.NodeChatModel({userName: this.userName, hashPass: this.hashPass});
         this.view = new NodeChatView({model: this.model, socket: this.socket, el: $('#content')});
         var view = this.view;
 
@@ -18,11 +20,3 @@ var NodeChatController = {
         return this;
     }
 };
-
-//
-// Bootstrap the app
-//
-$(document).ready(function () {
-    window.app = NodeChatController.init({});
-});
-

@@ -1,0 +1,19 @@
+!!! 5
+html(lang="en")
+  head
+    title nodechat login
+  body
+    #heading
+      h1 nodechat login
+    #content
+      p
+        | You may logon with any user name that has not already been claimed. Your account will be created automatically.
+      form(method="post", action="/login")
+        p
+          label Username:
+            input(type='text', name='username')
+        p
+          label Password:
+            input(type='password', name='password')
+        P
+          input(type='submit', value='send')
