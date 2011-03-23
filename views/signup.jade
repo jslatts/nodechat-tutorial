@@ -1,0 +1,27 @@
+!!! 5
+html(lang="en")
+  head
+    title nodechat new user
+  body
+    #heading
+      h1 nodechat new user
+    #content
+      p
+      form(method="post", action="/signup")
+        div(style='width:350px; text-align:right')
+          label Username:  
+            input(type='text', name='username')
+          br
+          label Password:  
+            input(type='text', name='password1')
+          br
+          label Password (again):  
+            input(type='text', name='password2')
+          br
+          label Email:  
+            input(type='text', name='email')
+          br
+          label Favorite thing about ponies:  
+            input(type='text', name='ponies')
+          br
+          input(type='submit', value='signup')

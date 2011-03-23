@@ -14,6 +14,8 @@
     //models
     //
     
+    models.User = Backbone.Model.extend({});
+    
     models.ChatEntry = Backbone.Model.extend({});
 
     models.ClientCountModel = Backbone.Model.extend({

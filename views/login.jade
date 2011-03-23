@@ -7,7 +7,9 @@ html(lang="en")
       h1 nodechat login
     #content
       p
-        | You may logon with any user name that has not already been claimed. Your account will be created automatically.
+        | Please login or go 
+        a(href='/signup') here
+        |  to create a new account.
       form(method="post", action="/login")
         p
           label Username:

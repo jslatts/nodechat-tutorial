@@ -37,16 +37,11 @@ app.get('/logout', function(req, res){
 });
 
 app.get('/login', function(req, res){
-    console.log('GET /login');
     res.render('login');
 });
 
-app.get('/disconnect', function(req, res){
-    res.render('disconnect');
-});
 
 app.post('/login', function(req, res){
-    console.log('POST /login');
     auth.authenticateUser(req.body.username, req.body.password, function(err, user){
         if (user) {
             // Regenerate session when signing in
@@ -59,9 +54,8 @@ app.post('/login', function(req, res){
                 req.session.cookie.maxAge = 100 * 24 * 60 * 60 * 1000; //Force longer cookie age
                 req.session.cookie.httpOnly = false;
                 req.session.user = user;
-                req.session.hashPass = user.hashPass || 'No Hash';
 
-                console.log('Storing new hash for user ' + user.name + ': ' + req.session.hash);
+                console.log('Storing new hash for user ' + user.get('name') + ': ' + req.session.user.get('hashPass'));
                 res.redirect('/');
             });
         } else {
@@ -71,13 +65,30 @@ app.post('/login', function(req, res){
     });
 });
 
+app.get('/signup', function(req, res){
+    res.render('signup');
+});
+
+app.post('/signup', function(req, res) {
+    auth.createNewUserAccount(req.body.username, req.body.password1, req.body.password2, req.body.email, req.body.ponies, function(err, user){
+        if (err) {
+            req.session.error = 'New user failed, please check your username and password.';
+            res.redirect('back');
+        }
+        else if(user) {
+            res.redirect('/login');
+        }
+    });
+
+});
+
 app.get('/*.(js|css)', function(req, res){
     res.sendfile('./'+req.url);
 });
 
 app.get('/', restrictAccess, function(req, res){
     res.render('index', {
-        locals: { name: req.session.user.name, hashPass: JSON.stringify(req.session.hashPass) }
+        locals: { name: req.session.user.name, hashPass: JSON.stringify(req.session.user.hashPass) }
     });
 });
 
@@ -96,19 +107,65 @@ function restrictAccess(req, res, next) {
 var activeClients = 0;
 var nodeChatModel = new models.NodeChatModel();
 
+
+function disconnectAndRedirectClient(client, fn) {
+    console.log('Disconnecting unauthenticated user');
+    client.send({ event: 'disconnect' });
+    client.connection.end();
+    fn();
+    return;
+}
+
 socket.on('connection', function(client){
-    activeClients += 1;
-    client.on('disconnect', function(){clientDisconnect(client)});
-    client.on('message', function(msg){chatMessage(client, socket, msg)});
+    // helper function that goes inside your socket connection
+    client.connectSession = function(fn) {
+        if (!client.request || !client.request.headers || !client.request.headers.cookie) {
+            disconnectAndRedirectClient(client,function() {
+               console.log('Null request/header/cookie!');
+            });
+            return;
+        }
 
-    client.send({
-        event: 'initial',
-        data: nodeChatModel.xport()
-    });
+        console.log('Cookie is' + client.request.headers.cookie);
 
-    socket.broadcast({
-        event: 'update',
-        clients: activeClients
+        var match = client.request.headers.cookie.match(/connect\.sid=([^;]+)/);
+        if (!match || match.length < 2) {
+            disconnectAndRedirectClient(client,function() {
+                console.log('Failed to find connect.sid in cookie')
+            });
+            return;
+        }
+
+        var sid = unescape(match[1]);
+
+        rc.get(sid, function(err, data) {
+            fn(err, JSON.parse(data));
+        });
+    };
+
+    client.connectSession(function(err, data) {
+        if(err) {
+            console.log('Error on connectionSession: ' + err);
+            return;
+        }
+
+        activeClients += 1;
+        client.on('disconnect', function(){clientDisconnect(client)});
+        client.on('message', function(msg){chatMessage(client, socket, msg)});
+
+        console.log('User successfully connected with ' + data.user.name + ' hash ' + data.user.hashPass); 
+
+        socket.broadcast({
+            event: 'update',
+            clients: activeClients
+        });
+
+        var ponyWelcome = new models.ChatEntry({name: 'PonyBot', text: 'Hello ' + data.user.name + '. I also feel that ponies ' + data.user.ponies + '. Welcome to nodechat.js'});
+
+        socket.broadcast({
+            event: 'chat',
+            data: ponyWelcome.xport()
+        });
     });
 });
 
