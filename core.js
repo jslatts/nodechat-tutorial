@@ -8,7 +8,7 @@
  * Include core dependencies.  
  */
 var _ = require('underscore')._
-    , Backbone = require('backbone')
+    , Backbone = require('backbone');
 
 /*
  * Include our own modules
@@ -20,9 +20,9 @@ var models = require('./models/models')
  * Require redis and setup the client 
  */
 var redis = require('redis')
-    , rc = redis.createClient()
+    , rc = redis.createClient();
 
-rc.on('error', function(err) {
+rc.on('error', function (err) {
     console.log('Error ' + err);
 });
 
@@ -34,20 +34,20 @@ var express = require('express')
     , connect = require('connect')
     , jade = require('jade')
     , socket = require('socket.io').listen(app)
-    , redisStore = require('connect-redis');
+    , RedisStore = require('connect-redis');
 
 app.set('view engine', 'jade');
 app.set('view options', {layout: false});
 app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({ store: new redisStore(), secret: 'Secretly I am an elephant' }));
+app.use(express.session({ store: new RedisStore(), secret: 'Secretly I am an elephant' }));
 
 /*
  * Route: GET /login
  *
  * Template: login.jade 
  */
-app.get('/login', function(req, res){
+app.get('/login', function (req, res) {
     res.render('login');
 });
 
@@ -58,11 +58,11 @@ app.get('/login', function(req, res){
  *
  * If the authentication module gives us a user object back, we ask connect to regenerate the session and send the client back to index. Note: we specify a _long_ cookie age so users won't have to log in frequently. We also set the httpOnly flag to false (I know, not so secure) to make the cookie available over [Flash Sockets](http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/net/Socket.html).
  */ 
-app.post('/login', function(req, res){
-    auth.authenticateUser(req.body.username, req.body.password, function(err, user){
+app.post('/login', function (req, res) {
+    auth.authenticateUser(req.body.username, req.body.password, function (err, user) {
         if (user) {
             // Regenerate session when signing in to prevent fixation 
-            req.session.regenerate(function(){
+            req.session.regenerate(function () {
                 // Store the user's primary key in the session store to be retrieved, or in this case the entire user object
                 console.log('regenerated session id ' + req.session.id);
                 req.session.cookie.maxAge = 100 * 24 * 60 * 60 * 1000; //Force longer cookie age
@@ -84,7 +84,7 @@ app.post('/login', function(req, res){
  *
  * Template: signup.jade
  */
-app.get('/signup', function(req, res){
+app.get('/signup', function (req, res) {
     res.render('signup');
 });
 
@@ -93,13 +93,13 @@ app.get('/signup', function(req, res){
  *
  * Calls createNewUserAccount() in the auth module, redirects to /login if a user object is returned. Redirects to /signup if not.
  */
-app.post('/signup', function(req, res) {
-    auth.createNewUserAccount(req.body.username, req.body.password1, req.body.password2, req.body.email, req.body.ponies, function(err, user){
+app.post('/signup', function (req, res) {
+    auth.createNewUserAccount(req.body.username, req.body.password1, req.body.password2, req.body.email, req.body.ponies, function (err, user) {
         if ((err) || (!user)) {
             req.session.error = 'New user failed, please check your username and password.';
             res.redirect('back');
         }
-        else if(user) {
+        else if (user) {
             res.redirect('/login');
         }
     });
@@ -110,8 +110,8 @@ app.post('/signup', function(req, res) {
  *  Tell connect to destory the session.
  */
 
-app.get('/logout', function(req, res){
-    req.session.destroy(function(){
+app.get('/logout', function (req, res) {
+    req.session.destroy(function () {
         res.redirect('home');
     });
 });
@@ -122,22 +122,8 @@ app.get('/logout', function(req, res){
  *
  * TODO: should restrict this to only server *public* routes.
  */
-app.get('/*.(js|css)', function(req, res){
-    res.sendfile('./'+req.url);
-});
-
-/*
- * Server up the main index view. 
- *
- * Calls the restrictAccess() middleware.
- *
- *
- *
- */
-app.get('/', restrictAccess, function(req, res){
-    res.render('index', {
-        locals: { name: req.session.user.name, hashPass: JSON.stringify(req.session.user.hashPass) }
-    });
+app.get('/*.(js|css)', function (req, res) {
+    res.sendfile('./' + req.url);
 });
 
 /*
@@ -152,8 +138,21 @@ function restrictAccess(req, res, next) {
         req.session.error = 'Access denied!';
         res.redirect('/login');
     }
-};
+}
 
+/*
+ * Server up the main index view. 
+ *
+ * Calls the restrictAccess() middleware.
+ *
+ *
+ *
+ */
+app.get('/', restrictAccess, function (req, res) {
+    res.render('index', {
+        locals: { name: req.session.user.name, hashPass: JSON.stringify(req.session.user.hashPass) }
+    });
+});
 
 //create local state
 var activeClients = 0;
@@ -173,6 +172,44 @@ function disconnectAndRedirectClient(client, fn) {
 }
 
 /*
+ * Event handler for client disconnectes. Simply broadcasts the new active client count.
+ * 
+ * @param {object} client
+ */
+function clientDisconnect(client) {
+    activeClients -= 1;
+    client.broadcast({clients: activeClients});
+}
+
+/*
+ * Event handler for new chat messages. Stores the chat in redis and broadcasts it to all connected clients.
+ * 
+ * @param {object} client
+ * @param {object} socket
+ * @param {json string} msg
+ */
+function chatMessage(client, socket, msg) {
+    var chat = new models.ChatEntry();
+    chat.mport(msg);
+
+    rc.incr('next.chatentry.id', function (err, newId) {
+        chat.set({id: newId});
+        nodeChatModel.chats.add(chat);
+        
+        var expandedMsg = chat.get('id') + ' ' + client.user.name + ': ' + chat.get('text');
+        console.log('(' + client.sessionId + ') ' + expandedMsg);
+
+        rc.rpush('chatentries', chat.xport(), redis.print);
+        rc.bgsave();
+
+        socket.broadcast({
+            event: 'chat',
+            data: chat.xport()
+        }); 
+    }); 
+}
+
+/*
  *
  * Handle the new connection event for socket. 
  * 
@@ -180,34 +217,35 @@ function disconnectAndRedirectClient(client, fn) {
  *
  * We then use the helper method in the 'connection' handler for our socket listener. Instead accepting any user connection, we are going to check that the client has a valid session (meaning they logged in). If they don't, give them the boot! If they do, then we store a copy of the session data (yay we have access!) in the client object and then setup the rest of the socket events. Finally, send them a welcome message just to prove that we remembered their profile. 
  */
-socket.on('connection', function(client){
-    client.connectSession = function(fn) {
+socket.on('connection', function (client) {
+    client.connectSession = function (fn) {
         if (!client.request || !client.request.headers || !client.request.headers.cookie) {
-            disconnectAndRedirectClient(client,function() {
-               console.log('Null request/header/cookie!');
+            disconnectAndRedirectClient(client, function () {
+                console.log('Null request/header/cookie!');
             });
             return;
         }
 
         console.log('Cookie is' + client.request.headers.cookie);
 
-        var match = client.request.headers.cookie.match(/connect\.sid=([^;]+)/);
+        var match, sid;
+        match = client.request.headers.cookie.match(/connect\.sid=([^;]+)/);
         if (!match || match.length < 2) {
-            disconnectAndRedirectClient(client,function() {
-                console.log('Failed to find connect.sid in cookie')
+            disconnectAndRedirectClient(client, function () {
+                console.log('Failed to find connect.sid in cookie');
             });
             return;
         }
 
-        var sid = unescape(match[1]);
+        sid = unescape(match[1]);
 
-        rc.get(sid, function(err, data) {
+        rc.get(sid, function (err, data) {
             fn(err, JSON.parse(data));
         });
     };
 
-    client.connectSession(function(err, data) {
-        if(err) {
+    client.connectSession(function (err, data) {
+        if (err) {
             console.log('Error on connectionSession: ' + err);
             return;
         }
@@ -215,8 +253,12 @@ socket.on('connection', function(client){
         client.user = data.user;
 
         activeClients += 1;
-        client.on('disconnect', function(){clientDisconnect(client)});
-        client.on('message', function(msg){chatMessage(client, socket, msg)});
+        client.on('disconnect', function () {   
+            clientDisconnect(client);
+        });
+        client.on('message', function (msg) {
+            chatMessage(client, socket, msg);
+        });
 
         console.log('User successfully connected with ' + data.user.name + ' hash ' + data.user.hashPass); 
 
@@ -235,44 +277,6 @@ socket.on('connection', function(client){
 });
 
 /*
- * Event handler for new chat messages. Stores the chat in redis and broadcasts it to all connected clients.
- * 
- * @param {object} client
- * @param {object} socket
- * @param {json string} msg
- */
-function chatMessage(client, socket, msg){
-    var chat = new models.ChatEntry();
-    chat.mport(msg);
-
-    rc.incr('next.chatentry.id', function(err, newId) {
-        chat.set({id: newId});
-        nodeChatModel.chats.add(chat);
-        
-        var expandedMsg = chat.get('id') + ' ' + client.user.name + ': ' + chat.get('text');
-        console.log('(' + client.sessionId + ') ' + expandedMsg);
-
-        rc.rpush('chatentries', chat.xport(), redis.print);
-        rc.bgsave();
-
-        socket.broadcast({
-            event: 'chat',
-            data:chat.xport()
-        }); 
-    }); 
-}
-
-/*
- * Event handler for client disconnectes. Simply broadcasts the new active client count.
- * 
- * @param {object} client
- */
-function clientDisconnect(client) {
-    activeClients -= 1;
-    client.broadcast({clients:activeClients})
-}
-
-/*
  * Fire up the webserver 
  */
-app.listen(8000)
+app.listen(8000);
