@@ -4,19 +4,19 @@
  * MIT Licensed
  */
 
-/**
+/*
  * Include core dependencies.  
  */
 var _ = require('underscore')._
     , Backbone = require('backbone')
 
-/**
+/*
  * Include our own modules
  */
 var models = require('./models/models')
     , auth = require('./lib/auth');
 
-/**
+/*
  * Require redis and setup the client 
  */
 var redis = require('redis')
@@ -26,7 +26,7 @@ rc.on('error', function(err) {
     console.log('Error ' + err);
 });
 
-/**
+/*
  * Setup connect, express, socket, and the connect-redis session store
  */
 var express = require('express')
@@ -42,7 +42,7 @@ app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({ store: new redisStore(), secret: 'Secretly I am an elephant' }));
 
-/**
+/*
  * Route: GET /login
  *
  * Template: login.jade 
@@ -51,7 +51,7 @@ app.get('/login', function(req, res){
     res.render('login');
 });
 
-/**
+/*
  * Route: POST /login
  *
  * Calls the authentication module to verify login details. Failures are redirected back to the login page.
@@ -79,7 +79,7 @@ app.post('/login', function(req, res){
     });
 });
 
-/**
+/*
  * Route: GET /signup:
  *
  * Template: signup.jade
@@ -88,7 +88,7 @@ app.get('/signup', function(req, res){
     res.render('signup');
 });
 
-/**
+/*
  * Route: POST /signup
  *
  * Calls createNewUserAccount() in the auth module, redirects to /login if a user object is returned. Redirects to /signup if not.
@@ -106,7 +106,7 @@ app.post('/signup', function(req, res) {
 
 });
 
-/**
+/*
  *  Tell connect to destory the session.
  */
 
@@ -117,7 +117,7 @@ app.get('/logout', function(req, res){
 });
 
 
-/**
+/*
  * Serve up any static file requested by the client
  *
  * TODO: should restrict this to only server *public* routes.
@@ -126,7 +126,7 @@ app.get('/*.(js|css)', function(req, res){
     res.sendfile('./'+req.url);
 });
 
-/**
+/*
  * Server up the main index view. 
  *
  * Calls the restrictAccess() middleware.
@@ -140,7 +140,7 @@ app.get('/', restrictAccess, function(req, res){
     });
 });
 
-/**
+/*
  *  Middleware that decides what a valid login looks like. In this case, just verify that we have a session object for the user.
  *
  *  This is an express [route middleware](http://expressjs.com/guide.html#route-middleware). Control is passed to the middleware function before the route function is called. We use restrictAccess() to verify that we have a valid user key in the session, implying that authentication has succeeded, before we send the client to the index.jade template. If we do not have a valid user in the session, then we redirect to the '/login' route. This effectively locks down our '/' route from unauthenticated access. You could add the restrictAccess() all to any route you want to protect.
@@ -159,7 +159,7 @@ function restrictAccess(req, res, next) {
 var activeClients = 0;
 var nodeChatModel = new models.NodeChatModel();
 
-/**
+/*
  * When we have a client that shouldn't be connected, __kick 'em off!__' 
  * 
  * @param {object} client
@@ -272,7 +272,7 @@ function clientDisconnect(client) {
     client.broadcast({clients:activeClients})
 }
 
-/**
+/*
  * Fire up the webserver 
  */
 app.listen(8000)
