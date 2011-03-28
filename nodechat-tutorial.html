@@ -108,13 +108,13 @@ code .this { color: #19469D; }</style>
 		</script>
 	</head>
 	<body>
-<table id="source"><tbody><tr><td><h1>nodechat-tutorial</h1><p>Tutorial code to go along with fzysqr.com post</p></td><td></td></tr><tr class="filename"><td><h2 id="core.js"><a href="#">core</a></h2></td><td>core.js</td></tr><tr class="code">
+<table id="source"><tbody><tr><td><h1>nodechat-tutorial</h1><p>Tutorial code to go along with fzysqr.com post at http://fzysqr.com/2011/03/27/nodechat-js-continued-authentication-profiles-ponies-and-a-meaner-socket-io/</p></td><td></td></tr><tr class="filename"><td><h2 id="core.js"><a href="#">core</a></h2></td><td>core.js</td></tr><tr class="code">
 <td class="docs">
 <p>Include core dependencies.<br></br> </p>
 </td>
 <td class="code">
 <pre><code><span class="keyword">var</span> <span class="variable">_</span> = <span class="variable">require</span>(<span class="string">'underscore'</span>).<span class="variable">_</span>
-    , <span class="class">Backbone</span> = <span class="variable">require</span>(<span class="string">'backbone'</span>)</code></pre>
+    , <span class="class">Backbone</span> = <span class="variable">require</span>(<span class="string">'backbone'</span>);</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -134,9 +134,9 @@ code .this { color: #19469D; }</style>
 </td>
 <td class="code">
 <pre><code><span class="keyword">var</span> <span class="variable">redis</span> = <span class="variable">require</span>(<span class="string">'redis'</span>)
-    , <span class="variable">rc</span> = <span class="variable">redis</span>.<span class="variable">createClient</span>()
+    , <span class="variable">rc</span> = <span class="variable">redis</span>.<span class="variable">createClient</span>();
 
-<span class="variable">rc</span>.<span class="variable">on</span>(<span class="string">'error'</span>, <span class="keyword">function</span>(<span class="variable">err</span>) {
+<span class="variable">rc</span>.<span class="variable">on</span>(<span class="string">'error'</span>, <span class="keyword">function</span> (<span class="variable">err</span>) {
     <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Error '</span> + <span class="variable">err</span>);
 });</code></pre>
 </td>
@@ -152,13 +152,13 @@ code .this { color: #19469D; }</style>
     , <span class="variable">connect</span> = <span class="variable">require</span>(<span class="string">'connect'</span>)
     , <span class="variable">jade</span> = <span class="variable">require</span>(<span class="string">'jade'</span>)
     , <span class="variable">socket</span> = <span class="variable">require</span>(<span class="string">'socket.io'</span>).<span class="variable">listen</span>(<span class="variable">app</span>)
-    , <span class="variable">redisStore</span> = <span class="variable">require</span>(<span class="string">'connect-redis'</span>);
+    , <span class="class">RedisStore</span> = <span class="variable">require</span>(<span class="string">'connect-redis'</span>);
 
 <span class="variable">app</span>.<span class="variable">set</span>(<span class="string">'view engine'</span>, <span class="string">'jade'</span>);
 <span class="variable">app</span>.<span class="variable">set</span>(<span class="string">'view options'</span>, {<span class="variable">layout</span>: <span class="variable">false</span>});
 <span class="variable">app</span>.<span class="variable">use</span>(<span class="variable">express</span>.<span class="variable">bodyParser</span>());
 <span class="variable">app</span>.<span class="variable">use</span>(<span class="variable">express</span>.<span class="variable">cookieParser</span>());
-<span class="variable">app</span>.<span class="variable">use</span>(<span class="variable">express</span>.<span class="variable">session</span>({ <span class="variable">store</span>: <span class="keyword">new</span> <span class="variable">redisStore</span>(), <span class="variable">secret</span>: <span class="string">'Secretly I am an elephant'</span> }));</code></pre>
+<span class="variable">app</span>.<span class="variable">use</span>(<span class="variable">express</span>.<span class="variable">session</span>({ <span class="variable">store</span>: <span class="keyword">new</span> <span class="class">RedisStore</span>(), <span class="variable">secret</span>: <span class="string">'Secretly I am an elephant'</span> }));</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -168,7 +168,7 @@ code .this { color: #19469D; }</style>
 <h2>Template login.jade</h2>
 </td>
 <td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/login'</span>, <span class="keyword">function</span>(<span class="variable">req</span>, <span class="variable">res</span>){
+<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/login'</span>, <span class="keyword">function</span> (<span class="variable">req</span>, <span class="variable">res</span>) {
     <span class="variable">res</span>.<span class="variable">render</span>(<span class="string">'login'</span>);
 });</code></pre>
 </td>
@@ -183,11 +183,11 @@ code .this { color: #19469D; }</style>
  </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">post</span>(<span class="string">'/login'</span>, <span class="keyword">function</span>(<span class="variable">req</span>, <span class="variable">res</span>){
-    <span class="variable">auth</span>.<span class="variable">authenticateUser</span>(<span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">username</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">password</span>, <span class="keyword">function</span>(<span class="variable">err</span>, <span class="variable">user</span>){
+<pre><code><span class="variable">app</span>.<span class="variable">post</span>(<span class="string">'/login'</span>, <span class="keyword">function</span> (<span class="variable">req</span>, <span class="variable">res</span>) {
+    <span class="variable">auth</span>.<span class="variable">authenticateUser</span>(<span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">username</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">password</span>, <span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">user</span>) {
         <span class="keyword">if</span> (<span class="variable">user</span>) {
             <span class="comment">// Regenerate session when signing in to prevent fixation </span>
-            <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">regenerate</span>(<span class="keyword">function</span>(){
+            <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">regenerate</span>(<span class="keyword">function</span> () {
                 <span class="comment">// Store the user's primary key in the session store to be retrieved, or in this case the entire user object</span>
                 <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'regenerated session id '</span> + <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">id</span>);
                 <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">cookie</span>.<span class="variable">maxAge</span> = <span class="number integer">100</span> * <span class="number integer">24</span> * <span class="number integer">60</span> * <span class="number integer">60</span> * <span class="number integer">1000</span>; <span class="comment">//Force longer cookie age</span>
@@ -212,7 +212,7 @@ code .this { color: #19469D; }</style>
 <h2>Template signup.jade</h2>
 </td>
 <td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/signup'</span>, <span class="keyword">function</span>(<span class="variable">req</span>, <span class="variable">res</span>){
+<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/signup'</span>, <span class="keyword">function</span> (<span class="variable">req</span>, <span class="variable">res</span>) {
     <span class="variable">res</span>.<span class="variable">render</span>(<span class="string">'signup'</span>);
 });</code></pre>
 </td>
@@ -225,13 +225,13 @@ code .this { color: #19469D; }</style>
  </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">post</span>(<span class="string">'/signup'</span>, <span class="keyword">function</span>(<span class="variable">req</span>, <span class="variable">res</span>) {
-    <span class="variable">auth</span>.<span class="variable">createNewUserAccount</span>(<span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">username</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">password1</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">password2</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">email</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">ponies</span>, <span class="keyword">function</span>(<span class="variable">err</span>, <span class="variable">user</span>){
+<pre><code><span class="variable">app</span>.<span class="variable">post</span>(<span class="string">'/signup'</span>, <span class="keyword">function</span> (<span class="variable">req</span>, <span class="variable">res</span>) {
+    <span class="variable">auth</span>.<span class="variable">createNewUserAccount</span>(<span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">username</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">password1</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">password2</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">email</span>, <span class="variable">req</span>.<span class="variable">body</span>.<span class="variable">ponies</span>, <span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">user</span>) {
         <span class="keyword">if</span> ((<span class="variable">err</span>) || (!<span class="variable">user</span>)) {
             <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">error</span> = <span class="string">'New user failed, please check your username and password.'</span>;
             <span class="variable">res</span>.<span class="variable">redirect</span>(<span class="string">'back'</span>);
         }
-        <span class="keyword">else</span> <span class="keyword">if</span>(<span class="variable">user</span>) {
+        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">user</span>) {
             <span class="variable">res</span>.<span class="variable">redirect</span>(<span class="string">'/login'</span>);
         }
     });
@@ -245,8 +245,8 @@ code .this { color: #19469D; }</style>
  </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/logout'</span>, <span class="keyword">function</span>(<span class="variable">req</span>, <span class="variable">res</span>){
-    <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">destroy</span>(<span class="keyword">function</span>(){
+<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/logout'</span>, <span class="keyword">function</span> (<span class="variable">req</span>, <span class="variable">res</span>) {
+    <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">destroy</span>(<span class="keyword">function</span> () {
         <span class="variable">res</span>.<span class="variable">redirect</span>(<span class="string">'home'</span>);
     });
 });</code></pre>
@@ -264,28 +264,12 @@ code .this { color: #19469D; }</style>
 </tr>
 <tr class="code">
 <td class="docs">
-<p>.(js|css)', function(req, res){
-    res.sendfile('./'+req.url);
+<p>.(js|css)', function (req, res) {
+    res.sendfile('./' + req.url);
 });</p>
 
 <p>/*
-Server up the main index view. </p>
-
-<p>Calls the restrictAccess() middleware.</p>
-
-<p> </p>
-</td>
-<td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/'</span>, <span class="variable">restrictAccess</span>, <span class="keyword">function</span>(<span class="variable">req</span>, <span class="variable">res</span>){
-    <span class="variable">res</span>.<span class="variable">render</span>(<span class="string">'index'</span>, {
-        <span class="variable">locals</span>: { <span class="variable">name</span>: <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">user</span>.<span class="variable">name</span>, <span class="variable">hashPass</span>: <span class="class">JSON</span>.<span class="variable">stringify</span>(<span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">user</span>.<span class="variable">hashPass</span>) }
-    });
-});</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p> Middleware that decides what a valid login looks like. In this case, just verify that we have a session object for the user.</p>
+ Middleware that decides what a valid login looks like. In this case, just verify that we have a session object for the user.</p>
 
 <p> This is an express <a href="http://expressjs.com/guide.html#route-middleware">route middleware</a>. Control is passed to the middleware function before the route function is called. We use restrictAccess() to verify that we have a valid user key in the session, implying that authentication has succeeded, before we send the client to the index.jade template. If we do not have a valid user in the session, then we redirect to the '/login' route. This effectively locks down our '/' route from unauthenticated access. You could add the restrictAccess() all to any route you want to protect.
  </p>
@@ -298,8 +282,23 @@ Server up the main index view. </p>
         <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">error</span> = <span class="string">'Access denied!'</span>;
         <span class="variable">res</span>.<span class="variable">redirect</span>(<span class="string">'/login'</span>);
     }
-};
+}</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Server up the main index view. </p>
 
+<p>Calls the restrictAccess() middleware.</p>
+
+<p> </p>
+</td>
+<td class="code">
+<pre><code><span class="variable">app</span>.<span class="variable">get</span>(<span class="string">'/'</span>, <span class="variable">restrictAccess</span>, <span class="keyword">function</span> (<span class="variable">req</span>, <span class="variable">res</span>) {
+    <span class="variable">res</span>.<span class="variable">render</span>(<span class="string">'index'</span>, {
+        <span class="variable">locals</span>: { <span class="variable">name</span>: <span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">user</span>.<span class="variable">name</span>, <span class="variable">hashPass</span>: <span class="class">JSON</span>.<span class="variable">stringify</span>(<span class="variable">req</span>.<span class="variable">session</span>.<span class="variable">user</span>.<span class="variable">hashPass</span>) }
+    });
+});
 
 <span class="comment">//create local state</span>
 <span class="keyword">var</span> <span class="variable">activeClients</span> = <span class="number integer">0</span>;
@@ -325,6 +324,51 @@ Server up the main index view. </p>
 </tr>
 <tr class="code">
 <td class="docs">
+<p>Event handler for client disconnects. Simply broadcasts the new active client count.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>object</em>  client</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="keyword">function</span> <span class="variable">clientDisconnect</span>(<span class="variable">client</span>) {
+    <span class="variable">activeClients</span> -= <span class="number integer">1</span>;
+    <span class="variable">client</span>.<span class="variable">broadcast</span>({<span class="variable">clients</span>: <span class="variable">activeClients</span>});
+}</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Event handler for new chat messages. Stores the chat in redis and broadcasts it to all connected clients.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>object</em>  client</p></li><li><p><strong>param</strong>: <em>object</em>  socket</p></li><li><p><strong>param</strong>: <em>json string</em>  msg</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="keyword">function</span> <span class="variable">chatMessage</span>(<span class="variable">client</span>, <span class="variable">socket</span>, <span class="variable">msg</span>) {
+    <span class="keyword">var</span> <span class="variable">chat</span> = <span class="keyword">new</span> <span class="variable">models</span>.<span class="class">ChatEntry</span>();
+    <span class="variable">chat</span>.<span class="variable">mport</span>(<span class="variable">msg</span>);
+
+    <span class="variable">rc</span>.<span class="variable">incr</span>(<span class="string">'next.chatentry.id'</span>, <span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">newId</span>) {
+        <span class="variable">chat</span>.<span class="variable">set</span>({<span class="variable">id</span>: <span class="variable">newId</span>});
+        <span class="variable">nodeChatModel</span>.<span class="variable">chats</span>.<span class="variable">add</span>(<span class="variable">chat</span>);
+        
+        <span class="keyword">var</span> <span class="variable">expandedMsg</span> = <span class="variable">chat</span>.<span class="variable">get</span>(<span class="string">'id'</span>) + <span class="string">' '</span> + <span class="variable">client</span>.<span class="variable">user</span>.<span class="variable">name</span> + <span class="string">': '</span> + <span class="variable">chat</span>.<span class="variable">get</span>(<span class="string">'text'</span>);
+        <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'('</span> + <span class="variable">client</span>.<span class="variable">sessionId</span> + <span class="string">') '</span> + <span class="variable">expandedMsg</span>);
+
+        <span class="variable">rc</span>.<span class="variable">rpush</span>(<span class="string">'chatentries'</span>, <span class="variable">chat</span>.<span class="variable">xport</span>(), <span class="variable">redis</span>.<span class="variable">print</span>);
+
+        <span class="variable">socket</span>.<span class="variable">broadcast</span>({
+            <span class="variable">event</span>: <span class="string">'chat'</span>,
+            <span class="variable">data</span>: <span class="variable">chat</span>.<span class="variable">xport</span>()
+        }); 
+    }); 
+}</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
 <p>Handle the new connection event for socket. </p>
 
 <p>connectSession() is a helper method that will verify a client's validity by checking for a cookie in the request header, then, if we find it,  <em>pulling their session out of redis</em>. </p>
@@ -333,34 +377,35 @@ Server up the main index view. </p>
  </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">socket</span>.<span class="variable">on</span>(<span class="string">'connection'</span>, <span class="keyword">function</span>(<span class="variable">client</span>){
-    <span class="variable">client</span>.<span class="variable">connectSession</span> = <span class="keyword">function</span>(<span class="variable">fn</span>) {
+<pre><code><span class="variable">socket</span>.<span class="variable">on</span>(<span class="string">'connection'</span>, <span class="keyword">function</span> (<span class="variable">client</span>) {
+    <span class="variable">client</span>.<span class="variable">connectSession</span> = <span class="keyword">function</span> (<span class="variable">fn</span>) {
         <span class="keyword">if</span> (!<span class="variable">client</span>.<span class="variable">request</span> || !<span class="variable">client</span>.<span class="variable">request</span>.<span class="variable">headers</span> || !<span class="variable">client</span>.<span class="variable">request</span>.<span class="variable">headers</span>.<span class="variable">cookie</span>) {
-            <span class="variable">disconnectAndRedirectClient</span>(<span class="variable">client</span>,<span class="keyword">function</span>() {
-               <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Null request/header/cookie!'</span>);
+            <span class="variable">disconnectAndRedirectClient</span>(<span class="variable">client</span>, <span class="keyword">function</span> () {
+                <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Null request/header/cookie!'</span>);
             });
             <span class="keyword">return</span>;
         }
 
         <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Cookie is'</span> + <span class="variable">client</span>.<span class="variable">request</span>.<span class="variable">headers</span>.<span class="variable">cookie</span>);
 
-        <span class="keyword">var</span> <span class="variable">match</span> = <span class="variable">client</span>.<span class="variable">request</span>.<span class="variable">headers</span>.<span class="variable">cookie</span>.<span class="variable">match</span>(<span class="regexp">/connect\.sid=([^;]+)/</span>);
+        <span class="keyword">var</span> <span class="variable">match</span>, <span class="variable">sid</span>;
+        <span class="variable">match</span> = <span class="variable">client</span>.<span class="variable">request</span>.<span class="variable">headers</span>.<span class="variable">cookie</span>.<span class="variable">match</span>(<span class="regexp">/connect\.sid=([^;]+)/</span>);
         <span class="keyword">if</span> (!<span class="variable">match</span> || <span class="variable">match</span>.<span class="variable">length</span> &<span class="variable">lt</span>; <span class="number integer">2</span>) {
-            <span class="variable">disconnectAndRedirectClient</span>(<span class="variable">client</span>,<span class="keyword">function</span>() {
-                <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Failed to find connect.sid in cookie'</span>)
+            <span class="variable">disconnectAndRedirectClient</span>(<span class="variable">client</span>, <span class="keyword">function</span> () {
+                <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Failed to find connect.sid in cookie'</span>);
             });
             <span class="keyword">return</span>;
         }
 
-        <span class="keyword">var</span> <span class="variable">sid</span> = <span class="variable">unescape</span>(<span class="variable">match</span>[<span class="number integer">1</span>]);
+        <span class="variable">sid</span> = <span class="variable">unescape</span>(<span class="variable">match</span>[<span class="number integer">1</span>]);
 
-        <span class="variable">rc</span>.<span class="variable">get</span>(<span class="variable">sid</span>, <span class="keyword">function</span>(<span class="variable">err</span>, <span class="variable">data</span>) {
+        <span class="variable">rc</span>.<span class="variable">get</span>(<span class="variable">sid</span>, <span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">data</span>) {
             <span class="variable">fn</span>(<span class="variable">err</span>, <span class="class">JSON</span>.<span class="variable">parse</span>(<span class="variable">data</span>));
         });
     };
 
-    <span class="variable">client</span>.<span class="variable">connectSession</span>(<span class="keyword">function</span>(<span class="variable">err</span>, <span class="variable">data</span>) {
-        <span class="keyword">if</span>(<span class="variable">err</span>) {
+    <span class="variable">client</span>.<span class="variable">connectSession</span>(<span class="keyword">function</span> (<span class="variable">err</span>, <span class="variable">data</span>) {
+        <span class="keyword">if</span> (<span class="variable">err</span>) {
             <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'Error on connectionSession: '</span> + <span class="variable">err</span>);
             <span class="keyword">return</span>;
         }
@@ -368,8 +413,12 @@ Server up the main index view. </p>
         <span class="variable">client</span>.<span class="variable">user</span> = <span class="variable">data</span>.<span class="variable">user</span>;
 
         <span class="variable">activeClients</span> += <span class="number integer">1</span>;
-        <span class="variable">client</span>.<span class="variable">on</span>(<span class="string">'disconnect'</span>, <span class="keyword">function</span>(){<span class="variable">clientDisconnect</span>(<span class="variable">client</span>)});
-        <span class="variable">client</span>.<span class="variable">on</span>(<span class="string">'message'</span>, <span class="keyword">function</span>(<span class="variable">msg</span>){<span class="variable">chatMessage</span>(<span class="variable">client</span>, <span class="variable">socket</span>, <span class="variable">msg</span>)});
+        <span class="variable">client</span>.<span class="variable">on</span>(<span class="string">'disconnect'</span>, <span class="keyword">function</span> () {   
+            <span class="variable">clientDisconnect</span>(<span class="variable">client</span>);
+        });
+        <span class="variable">client</span>.<span class="variable">on</span>(<span class="string">'message'</span>, <span class="keyword">function</span> (<span class="variable">msg</span>) {
+            <span class="variable">chatMessage</span>(<span class="variable">client</span>, <span class="variable">socket</span>, <span class="variable">msg</span>);
+        });
 
         <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'User successfully connected with '</span> + <span class="variable">data</span>.<span class="variable">user</span>.<span class="variable">name</span> + <span class="string">' hash '</span> + <span class="variable">data</span>.<span class="variable">user</span>.<span class="variable">hashPass</span>); 
 
@@ -390,57 +439,11 @@ Server up the main index view. </p>
 </tr>
 <tr class="code">
 <td class="docs">
-<p>Event handler for new chat messages. Stores the chat in redis and broadcasts it to all connected clients.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>object</em>  client</p></li><li><p><strong>param</strong>: <em>object</em>  socket</p></li><li><p><strong>param</strong>: <em>json string</em>  msg</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="keyword">function</span> <span class="variable">chatMessage</span>(<span class="variable">client</span>, <span class="variable">socket</span>, <span class="variable">msg</span>){
-    <span class="keyword">var</span> <span class="variable">chat</span> = <span class="keyword">new</span> <span class="variable">models</span>.<span class="class">ChatEntry</span>();
-    <span class="variable">chat</span>.<span class="variable">mport</span>(<span class="variable">msg</span>);
-
-    <span class="variable">rc</span>.<span class="variable">incr</span>(<span class="string">'next.chatentry.id'</span>, <span class="keyword">function</span>(<span class="variable">err</span>, <span class="variable">newId</span>) {
-        <span class="variable">chat</span>.<span class="variable">set</span>({<span class="variable">id</span>: <span class="variable">newId</span>});
-        <span class="variable">nodeChatModel</span>.<span class="variable">chats</span>.<span class="variable">add</span>(<span class="variable">chat</span>);
-        
-        <span class="keyword">var</span> <span class="variable">expandedMsg</span> = <span class="variable">chat</span>.<span class="variable">get</span>(<span class="string">'id'</span>) + <span class="string">' '</span> + <span class="variable">client</span>.<span class="variable">user</span>.<span class="variable">name</span> + <span class="string">': '</span> + <span class="variable">chat</span>.<span class="variable">get</span>(<span class="string">'text'</span>);
-        <span class="variable">console</span>.<span class="variable">log</span>(<span class="string">'('</span> + <span class="variable">client</span>.<span class="variable">sessionId</span> + <span class="string">') '</span> + <span class="variable">expandedMsg</span>);
-
-        <span class="variable">rc</span>.<span class="variable">rpush</span>(<span class="string">'chatentries'</span>, <span class="variable">chat</span>.<span class="variable">xport</span>(), <span class="variable">redis</span>.<span class="variable">print</span>);
-        <span class="variable">rc</span>.<span class="variable">bgsave</span>();
-
-        <span class="variable">socket</span>.<span class="variable">broadcast</span>({
-            <span class="variable">event</span>: <span class="string">'chat'</span>,
-            <span class="variable">data</span>:<span class="variable">chat</span>.<span class="variable">xport</span>()
-        }); 
-    }); 
-}</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Event handler for client disconnectes. Simply broadcasts the new active client count.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>object</em>  client</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="keyword">function</span> <span class="variable">clientDisconnect</span>(<span class="variable">client</span>) {
-    <span class="variable">activeClients</span> -= <span class="number integer">1</span>;
-    <span class="variable">client</span>.<span class="variable">broadcast</span>({<span class="variable">clients</span>:<span class="variable">activeClients</span>})
-}</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
 <p>Fire up the webserver 
  </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">app</span>.<span class="variable">listen</span>(<span class="number integer">8000</span>)
+<pre><code><span class="variable">app</span>.<span class="variable">listen</span>(<span class="number integer">8000</span>);
 </code></pre>
 </td>
 </tr><tr class="filename"><td><h2 id="controllers/controllers.js"><a href="#">controllers</a></h2></td><td>controllers/controllers.js</td></tr><tr class="code">
@@ -629,6 +632,206 @@ var NodeChatController = {
 })()
 
 </code></pre>
+</td>
+</tr><tr class="filename"><td><h2 id="models/models.js"><a href="#">models</a></h2></td><td>models/models.js</td></tr><tr class="code">
+<td class="docs">
+<p>(function () {
+    var server = false, models;
+    if (typeof exports !== 'undefined') {
+        <em> = require('underscore').</em>;
+        Backbone = require('backbone');</p>
+
+<pre><code>    models = exports;
+    server = true;
+} else {
+    models = this.models = {};
+}
+
+//
+//models
+//
+
+models.User = Backbone.Model.extend({});
+
+models.ChatEntry = Backbone.Model.extend({});
+
+models.ClientCountModel = Backbone.Model.extend({
+    defaults: {
+        "clients": 0
+    },
+
+    updateClients: function(clients){
+        this.set({clients: clients});
+    }
+});
+
+models.NodeChatModel = Backbone.Model.extend({
+    defaults: {
+        "clientId": 0
+    },
+
+    initialize: function() {
+        this.chats = new models.ChatCollection(); 
+    }
+});
+
+
+//
+//Collections
+//
+
+models.ChatCollection = Backbone.Collection.extend({
+    model: models.ChatEntry
+});
+
+//
+//Model exporting/importing
+//
+
+Backbone.Model.prototype.xport = function (opt) {
+    var result = {},
+    settings = _({recurse: true}).extend(opt || {});
+
+    function process(targetObj, source) {
+        targetObj.id = source.id || null;
+        targetObj.cid = source.cid || null;
+        targetObj.attrs = source.toJSON();
+        _.each(source, function (value, key) {
+        // since models store a reference to their collection
+        // we need to make sure we don't create a circular refrence
+            if (settings.recurse) {
+              if (key !== 'collection' &amp;&amp; source[key] instanceof Backbone.Collection) {
+                targetObj.collections = targetObj.collections || {};
+                targetObj.collections[key] = {};
+                targetObj.collections[key].models = [];
+                targetObj.collections[key].id = source[key].id || null;
+                _.each(source[key].models, function (value, index) {
+                  process(targetObj.collections[key].models[index] = {}, value);
+                });
+              } else if (source[key] instanceof Backbone.Model) {
+                targetObj.models = targetObj.models || {};
+                process(targetObj.models[key] = {}, value);
+              }
+           }
+        });
+    }
+
+    process(result, this);
+
+    return JSON.stringify(result);
+};
+
+
+Backbone.Model.prototype.mport = function (data, silent) {
+    function process(targetObj, data) {
+        targetObj.id = data.id || null;
+        targetObj.set(data.attrs, {silent: silent});
+        // loop through each collection
+        if (data.collections) {
+          _.each(data.collections, function (collection, name) {
+            targetObj[name].id = collection.id;
+            _.each(collection.models, function (modelData, index) {
+              var newObj = targetObj[name]._add({}, {silent: silent});
+              process(newObj, modelData);
+            });
+          });
+        }
+
+        if (data.models) {
+            _.each(data.models, function (modelData, name) {
+                process(targetObj[name], modelData);
+            });
+        }
+    }
+
+    process(this, JSON.parse(data));
+
+    return this;
+};</code></pre>
+
+<p>})()</p>
+</td>
+<td class="code">
+
+</td>
+</tr><tr class="filename"><td><h2 id="views/views.js"><a href="#">views</a></h2></td><td>views/views.js</td></tr><tr class="code">
+<td class="docs">
+<p>//
+//Views
+//</p>
+
+<p>var ChatView = Backbone.View.extend({
+    tagName: 'li',</p>
+
+<pre><code>initialize: function(options) {
+    _.bindAll(this, 'render');
+    this.model.bind('all', this.render);
+},
+
+render: function() {
+    $(this.el).html(this.model.get("name") + ": " + this.model.get("text"));
+    return this;
+}</code></pre>
+
+<p>});</p>
+
+<p>var ClientCountView = Backbone.View.extend({
+    initialize: function(options) {
+        _.bindAll(this, 'render');
+        this.model.bind('all', this.render);
+    },</p>
+
+<pre><code>render: function() {
+    this.el.html(this.model.get("clients"));
+    return this;
+}</code></pre>
+
+<p>});</p>
+
+<p>var NodeChatView = Backbone.View.extend({
+    initialize: function(options) {
+        <em>.bindAll(this, 'sendMessage');
+        this.model.chats.bind('add', this.addChat);
+        this.socket = options.socket;
+        this.clientCountView = new ClientCountView({model: new models.ClientCountModel(), el: $('#client</em>count')});
+    }</p>
+
+<pre><code>, events: {
+    "submit #messageForm" : "sendMessage"
+}
+
+, addChat: function(chat) {
+    var view = new ChatView({model: chat});
+    $('#chat_list').append(view.render().el);
+}
+
+, msgReceived: function(message){
+    switch(message.event) {
+        case 'initial':
+            this.model.mport(message.data);
+            break;
+        case 'chat':
+            var newChatEntry = new models.ChatEntry();
+            newChatEntry.mport(message.data);
+            this.model.chats.add(newChatEntry);
+            break;
+        case 'update':
+            this.clientCountView.model.updateClients(message.clients);
+            break;
+    }
+}
+
+, sendMessage: function(){
+    var inputField = $('input[name=message]');
+    var chatEntry = new models.ChatEntry({name: this.model.get('userName'), text: inputField.val()});
+    this.socket.send(chatEntry.xport());
+    inputField.val('');
+}</code></pre>
+
+<p>});</p>
+</td>
+<td class="code">
+
 </td>
 </tr><tr class="filename"><td><h2 id="lib/backbone.js"><a href="#">backbone</a></h2></td><td>lib/backbone.js</td></tr><tr class="code">
 <td class="docs">
@@ -2494,206 +2697,6 @@ return child;</code></pre>
   };</p>
 
 <p>})();</p>
-</td>
-<td class="code">
-
-</td>
-</tr><tr class="filename"><td><h2 id="models/models.js"><a href="#">models</a></h2></td><td>models/models.js</td></tr><tr class="code">
-<td class="docs">
-<p>(function () {
-    var server = false, models;
-    if (typeof exports !== 'undefined') {
-        <em> = require('underscore').</em>;
-        Backbone = require('backbone');</p>
-
-<pre><code>    models = exports;
-    server = true;
-} else {
-    models = this.models = {};
-}
-
-//
-//models
-//
-
-models.User = Backbone.Model.extend({});
-
-models.ChatEntry = Backbone.Model.extend({});
-
-models.ClientCountModel = Backbone.Model.extend({
-    defaults: {
-        "clients": 0
-    },
-
-    updateClients: function(clients){
-        this.set({clients: clients});
-    }
-});
-
-models.NodeChatModel = Backbone.Model.extend({
-    defaults: {
-        "clientId": 0
-    },
-
-    initialize: function() {
-        this.chats = new models.ChatCollection(); 
-    }
-});
-
-
-//
-//Collections
-//
-
-models.ChatCollection = Backbone.Collection.extend({
-    model: models.ChatEntry
-});
-
-//
-//Model exporting/importing
-//
-
-Backbone.Model.prototype.xport = function (opt) {
-    var result = {},
-    settings = _({recurse: true}).extend(opt || {});
-
-    function process(targetObj, source) {
-        targetObj.id = source.id || null;
-        targetObj.cid = source.cid || null;
-        targetObj.attrs = source.toJSON();
-        _.each(source, function (value, key) {
-        // since models store a reference to their collection
-        // we need to make sure we don't create a circular refrence
-            if (settings.recurse) {
-              if (key !== 'collection' &amp;&amp; source[key] instanceof Backbone.Collection) {
-                targetObj.collections = targetObj.collections || {};
-                targetObj.collections[key] = {};
-                targetObj.collections[key].models = [];
-                targetObj.collections[key].id = source[key].id || null;
-                _.each(source[key].models, function (value, index) {
-                  process(targetObj.collections[key].models[index] = {}, value);
-                });
-              } else if (source[key] instanceof Backbone.Model) {
-                targetObj.models = targetObj.models || {};
-                process(targetObj.models[key] = {}, value);
-              }
-           }
-        });
-    }
-
-    process(result, this);
-
-    return JSON.stringify(result);
-};
-
-
-Backbone.Model.prototype.mport = function (data, silent) {
-    function process(targetObj, data) {
-        targetObj.id = data.id || null;
-        targetObj.set(data.attrs, {silent: silent});
-        // loop through each collection
-        if (data.collections) {
-          _.each(data.collections, function (collection, name) {
-            targetObj[name].id = collection.id;
-            _.each(collection.models, function (modelData, index) {
-              var newObj = targetObj[name]._add({}, {silent: silent});
-              process(newObj, modelData);
-            });
-          });
-        }
-
-        if (data.models) {
-            _.each(data.models, function (modelData, name) {
-                process(targetObj[name], modelData);
-            });
-        }
-    }
-
-    process(this, JSON.parse(data));
-
-    return this;
-};</code></pre>
-
-<p>})()</p>
-</td>
-<td class="code">
-
-</td>
-</tr><tr class="filename"><td><h2 id="views/views.js"><a href="#">views</a></h2></td><td>views/views.js</td></tr><tr class="code">
-<td class="docs">
-<p>//
-//Views
-//</p>
-
-<p>var ChatView = Backbone.View.extend({
-    tagName: 'li',</p>
-
-<pre><code>initialize: function(options) {
-    _.bindAll(this, 'render');
-    this.model.bind('all', this.render);
-},
-
-render: function() {
-    $(this.el).html(this.model.get("name") + ": " + this.model.get("text"));
-    return this;
-}</code></pre>
-
-<p>});</p>
-
-<p>var ClientCountView = Backbone.View.extend({
-    initialize: function(options) {
-        _.bindAll(this, 'render');
-        this.model.bind('all', this.render);
-    },</p>
-
-<pre><code>render: function() {
-    this.el.html(this.model.get("clients"));
-    return this;
-}</code></pre>
-
-<p>});</p>
-
-<p>var NodeChatView = Backbone.View.extend({
-    initialize: function(options) {
-        <em>.bindAll(this, 'sendMessage');
-        this.model.chats.bind('add', this.addChat);
-        this.socket = options.socket;
-        this.clientCountView = new ClientCountView({model: new models.ClientCountModel(), el: $('#client</em>count')});
-    }</p>
-
-<pre><code>, events: {
-    "submit #messageForm" : "sendMessage"
-}
-
-, addChat: function(chat) {
-    var view = new ChatView({model: chat});
-    $('#chat_list').append(view.render().el);
-}
-
-, msgReceived: function(message){
-    switch(message.event) {
-        case 'initial':
-            this.model.mport(message.data);
-            break;
-        case 'chat':
-            var newChatEntry = new models.ChatEntry();
-            newChatEntry.mport(message.data);
-            this.model.chats.add(newChatEntry);
-            break;
-        case 'update':
-            this.clientCountView.model.updateClients(message.clients);
-            break;
-    }
-}
-
-, sendMessage: function(){
-    var inputField = $('input[name=message]');
-    var chatEntry = new models.ChatEntry({name: this.model.get('userName'), text: inputField.val()});
-    this.socket.send(chatEntry.xport());
-    inputField.val('');
-}</code></pre>
-
-<p>});</p>
 </td>
 <td class="code">
 

@@ -145,8 +145,6 @@ function restrictAccess(req, res, next) {
  *
  * Calls the restrictAccess() middleware.
  *
- *
- *
  */
 app.get('/', restrictAccess, function (req, res) {
     res.render('index', {
@@ -172,7 +170,7 @@ function disconnectAndRedirectClient(client, fn) {
 }
 
 /*
- * Event handler for client disconnectes. Simply broadcasts the new active client count.
+ * Event handler for client disconnects. Simply broadcasts the new active client count.
  * 
  * @param {object} client
  */
@@ -200,7 +198,6 @@ function chatMessage(client, socket, msg) {
         console.log('(' + client.sessionId + ') ' + expandedMsg);
 
         rc.rpush('chatentries', chat.xport(), redis.print);
-        rc.bgsave();
 
         socket.broadcast({
             event: 'chat',
@@ -210,7 +207,6 @@ function chatMessage(client, socket, msg) {
 }
 
 /*
- *
  * Handle the new connection event for socket. 
  * 
  * connectSession() is a helper method that will verify a client's validity by checking for a cookie in the request header, then, if we find it,  _pulling their session out of redis_. 
