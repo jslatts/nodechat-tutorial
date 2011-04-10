@@ -1,0 +1,3 @@
+LazyClass('Ensovis.Adapter.RemoteMethod', {
+
+})

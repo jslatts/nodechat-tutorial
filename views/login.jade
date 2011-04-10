@@ -7,15 +7,27 @@ html(lang="en")
       h1 nodechat login
     #content
       p
-        | Please login or go 
-        a(href='/signup') here
-        |  to create a new account.
-      form(method="post", action="/login")
-        p
-          label Username:
+        | please login 
+      form(method="post", action="/")
+        div(style='width:200px; text-align:right')
+          label username:
             input(type='text', name='username')
-        p
-          label Password:
+          br
+          label password:
             input(type='password', name='password')
-        P
-          input(type='submit', value='send')
+          br
+          input(type='submit', value='login')
+      p
+        | or create an account 
+      form(method="post", action="/")
+        div(style='width:200px; text-align:right')
+          label username:  
+            input(type='text', name='username')
+          br
+          label password:  
+            input(type='text', name='password')
+          br
+          label email:  
+            input(type='text', name='email')
+          br
+          input(type='submit', value='signup & login')
