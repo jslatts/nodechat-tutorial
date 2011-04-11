@@ -1,3 +1,4 @@
+//- This page serves up the actual chat UI. It includes the necessary dependencies, sets up the console logging and initializes the controller. The username and hashpassword are stored in the locals collection and replaced by express when the template is rendered. In turn, the parameters are passed to the controller for use later.
 !!! 5
 html(lang="en")
   head
@@ -34,12 +35,6 @@ html(lang="en")
       p
         label You are logged in as: 
           = locals.name 
-        br
-        label Your password hash is: 
-          = locals.hashPass
-        br
-        | don't you feel secure? :)
-
       p
         | Fun Chat Messages
         ul#chat_list
@@ -49,6 +44,3 @@ html(lang="en")
           label Message:
             input(type='text', name='message')
             input(type='submit', value='send')
-
-    #footer
-

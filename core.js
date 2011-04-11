@@ -39,6 +39,9 @@ app.set('view engine', 'jade');
 app.set('view options', {layout: false});
 app.use(express.bodyParser());
 
+/* 
+ * signInAccount() determines whether we are logging in, or creating an account by checking the request object for an email form field in the body and handling them appropriately. Upon successful authentication or account creation, the username and hashed password are passed to express in the local variables collection and rendered into the index template.
+ */
 function signInAccount(req, res) {
     if (req.body.email) {
         auth.createNewUserAccount(req.body.username, req.body.password, req.body.email, function (err, user) {
@@ -47,7 +50,7 @@ function signInAccount(req, res) {
             }
             else if (user) {
                 res.render('index', {
-                    locals: { name: user.name, hashpassword: JSON.stringify(user.hashpassword) }
+                    locals: { name: user.name, hashpassword: JSON.stringify(user.hashPass) }
                 });
             }
         });
@@ -70,6 +73,11 @@ function signInAccount(req, res) {
     }
 }
 
+/*
+ * The _connection_ event handler creates a closure with a new instance of the purgatory() function. It then sets up an anonymous function to handle client _message_ events. Each time a message is received from this client, stillInPurgatory() is called. If it returns true, we will only accept _clientauthrequest_ messages. If that happens to be what we just received, call tryToGetOut(). We pass tryToGetOut() a callback to call if the client successfully gets out of purgatory.
+ *  
+ * If stillInPurgatory() returns false, then handle the message as a regular chat message.
+ */
 function purgatory() {
     var inPurgatory = true;
     return {
@@ -151,7 +159,10 @@ var nodeChatModel = new models.NodeChatModel();
  */
 function clientDisconnect(client) {
     activeClients -= 1;
-    client.broadcast({clients: activeClients});
+    client.broadcast({
+        event: 'update'
+        , data: activeClients
+    });
 }
 
 /*
@@ -193,6 +204,12 @@ socket.on('connection', function (client) {
             if(message.event === 'clientauthrequest') {
                 //If we can get out of purgatory, set up the client for pubsub
                 clientPurgatory.tryToGetOut(message, client, function () {
+                    activeClients += 1;
+                    winston.info('clients: ' + activeClients);
+                    socket.broadcast({
+                        event: 'update'
+                        , data: activeClients
+                    });
 
                     client.on('disconnect', function () {
                         clientDisconnect(client);

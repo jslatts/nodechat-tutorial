@@ -20,9 +20,8 @@ var ClientCountView = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this, 'render');
         this.model.bind('all', this.render);
-    },
-
-    render: function() {
+    }
+    , render: function() {
         this.el.html(this.model.get("clients"));
         return this;
     }
@@ -56,7 +55,8 @@ var NodeChatView = Backbone.View.extend({
                 this.model.chats.add(newChatEntry);
                 break;
             case 'update':
-                this.clientCountView.model.updateClients(message.clients);
+                log('count received' + message.data);
+                this.clientCountView.model.updateClients(message.data);
                 break;
         }
     }
