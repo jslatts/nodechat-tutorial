@@ -46,7 +46,7 @@ function signInAccount(req, res) {
     if (req.body.email) {
         auth.createNewUserAccount(req.body.username, req.body.password, req.body.email, function (err, user) {
             if ((err) || (!user)) {
-                es.redirect('back');
+                res.redirect('back');
             }
             else if (user) {
                 res.render('index', {
