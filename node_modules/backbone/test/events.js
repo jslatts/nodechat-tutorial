@@ -39,4 +39,48 @@ $(document).ready(function() {
     equals(obj.counterB, 2, 'counterB should have been incremented twice.');
   });
 
+  test("Events: unbind a callback in the midst of it firing", function() {
+    var obj = {counter: 0};
+    _.extend(obj, Backbone.Events);
+    var callback = function() {
+      obj.counter += 1;
+      obj.unbind('event', callback);
+    };
+    obj.bind('event', callback);
+    obj.trigger('event');
+    obj.trigger('event');
+    obj.trigger('event');
+    equals(obj.counter, 1, 'the callback should have been unbound.');
+  });
+
+  test("Events: two binds that unbind themeselves", function() {
+    var obj = { counterA: 0, counterB: 0 };
+    _.extend(obj,Backbone.Events);
+    var incrA = function(){ obj.counterA += 1; obj.unbind('event', incrA); };
+    var incrB = function(){ obj.counterB += 1; obj.unbind('event', incrB); };
+    obj.bind('event', incrA);
+    obj.bind('event', incrB);
+    obj.trigger('event');
+    obj.trigger('event');
+    obj.trigger('event');
+    equals(obj.counterA, 1, 'counterA should have only been incremented once.');
+    equals(obj.counterB, 1, 'counterB should have only been incremented once.');
+  });
+  
+  test("Events: bind a callback with a supplied context", function () {
+    expect(1);
+    
+    var TestClass = function () { return this; }
+    TestClass.prototype.assertTrue = function () {
+      ok(true, '`this` was bound to the callback')
+    };
+    
+    var obj = _.extend({},Backbone.Events);
+    
+    obj.bind('event', function () { this.assertTrue(); }, (new TestClass));
+    
+    obj.trigger('event');
+    
+  });
+
 });

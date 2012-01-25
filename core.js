@@ -33,7 +33,7 @@ var express = require('express')
     , app = express.createServer()
     , connect = require('connect')
     , jade = require('jade')
-    , socket = require('socket.io').listen(app);
+    , io = require('socket.io').listen(app);
 
 app.set('view engine', 'jade');
 app.set('view options', {layout: false});
@@ -159,20 +159,16 @@ var nodeChatModel = new models.NodeChatModel();
  */
 function clientDisconnect(client) {
     activeClients -= 1;
-    client.broadcast({
-        event: 'update'
-        , data: activeClients
-    });
+    client.broadcast.emit('update', activeClients);
 }
 
 /*
  * Event handler for new chat messages. Stores the chat in redis and broadcasts it to all connected clients.
  * 
  * @param {object} client
- * @param {object} socket
  * @param {json string} msg
  */
-function chatMessage(client, socket, msg) {
+function chatMessage(client, msg) {
     var chat = new models.ChatEntry();
     chat.mport(msg);
     chat.set({name: client.user});
@@ -185,10 +181,7 @@ function chatMessage(client, socket, msg) {
 
         rc.rpush('chatentries', chat.xport(), redis.print);
 
-        socket.broadcast({
-            event: 'chat',
-            data: chat.xport()
-        }); 
+        io.sockets.emit('chat',chat.xport()); 
     }); 
 }
 
@@ -196,30 +189,28 @@ function chatMessage(client, socket, msg) {
  * Handle the new connection event for socket. 
  * 
  */
-socket.on('connection', function (client) {
+io.sockets.on('connection', function (client) {
     var clientPurgatory = purgatory();
 
-    client.on('message', function(message) {
+    client.on('clientauthrequest', function(message) {
         if (clientPurgatory.stillInPurgatory()) {
-            if(message.event === 'clientauthrequest') {
-                //If we can get out of purgatory, set up the client for pubsub
-                clientPurgatory.tryToGetOut(message, client, function () {
-                    activeClients += 1;
-                    winston.info('clients: ' + activeClients);
-                    socket.broadcast({
-                        event: 'update'
-                        , data: activeClients
-                    });
+              //If we can get out of purgatory, set up the client for pubsub
+              clientPurgatory.tryToGetOut(message, client, function () {
+                  activeClients += 1;
+                  winston.info('clients: ' + activeClients);
+                  io.sockets.emit('update', activeClients);
 
-                    client.on('disconnect', function () {
-                        clientDisconnect(client);
-                    });
-                });
-            }
+                  client.on('disconnect', function () {
+                      clientDisconnect(client);
+                  });
+              });
         }
-        else {
-            //If this is called, we are not in purgatory, so handle it normally
-            chatMessage(client, socket, message);
+    });
+
+    client.on('chat', function(message) {
+        if (!clientPurgatory.stillInPurgatory()) {
+          //If this is called, we are not in purgatory, so handle it normally
+          chatMessage(client, message);
         }
     });
 });

@@ -3,10 +3,12 @@
 //
 var NodeChatController = {
     init: function(options) {
-        var mySocket, user, view, hashpassword;
+        var ioc, user, view, hashpassword;
 
-        this.socket = new io.Socket(null, {port: 8001});
-        mySocket = this.socket;
+        ioc = io.connect('http://localhost')
+        this.socket = ioc;
+
+
         user = this.userName = options.userName;
         hashpassword = this.hashpassword = options.hashpassword
 
@@ -15,18 +17,18 @@ var NodeChatController = {
         view = this.view;
 
         this.socket.on('connect', function () { 
-            
-            mySocket.send({
-                event: 'clientauthrequest'
-                , user: user
+
+            ioc.emit('clientauthrequest', {
+                user: user
                 , hashpassword: hashpassword
             });
 
             log('Connected! Oh hai!');
         }); 
 
-        this.socket.on('message', function(msg) {view.msgReceived(msg)});
-        this.socket.connect();
+        this.socket.on('chat', function(msg) {view.msgReceived(msg)});
+        this.socket.on('initial', function(msg) {view.initReceived(msg)});
+        this.socket.on('update', function(msg) {view.updReceived(msg)});
 
         this.view.render();
 

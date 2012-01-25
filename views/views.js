@@ -44,27 +44,26 @@ var NodeChatView = Backbone.View.extend({
         $('#chat_list').append(view.render().el);
     }
 
-    , msgReceived: function(message){
-        switch(message.event) {
-            case 'initial':
-                this.model.mport(message.data);
-                break;
-            case 'chat':
-                var newChatEntry = new models.ChatEntry();
-                newChatEntry.mport(message.data);
-                this.model.chats.add(newChatEntry);
-                break;
-            case 'update':
-                log('count received' + message.data);
-                this.clientCountView.model.updateClients(message.data);
-                break;
-        }
+
+    , initReceived: function(message) {
+        this.model.mport(message);
+    }
+
+    , msgReceived: function(message) {
+        var newChatEntry = new models.ChatEntry();
+        newChatEntry.mport(message);
+        this.model.chats.add(newChatEntry);
+    }
+
+    , updReceived: function(message) {
+        log('count received' + message);
+        this.clientCountView.model.updateClients(message);
     }
 
     , sendMessage: function(){
         var inputField = $('input[name=message]');
         var chatEntry = new models.ChatEntry({text: inputField.val()});
-        this.socket.send(chatEntry.xport());
+        this.socket.emit('chat', chatEntry.xport());
         inputField.val('');
     }
 });
